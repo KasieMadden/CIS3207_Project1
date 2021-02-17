@@ -5,8 +5,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
-#include <string.h>
-#include <assert.h>
+#include <queue>
+
+//#include <string.h>
+//#include <assert.h>
+
+
+//Declaring global variables
+int currentT;
 
 using namespace std;
 
@@ -96,23 +102,25 @@ class priorityQueue{
 
 };// end of priorityQueue CLASS
 
-int randomNumber(int a, int b){
+
+//random number generator
+int randomNumber(int min, int max){
     int number;
-    number = rand() % (a + b + 1) + a*b ;
+    number = (rand() % (min + max + 1) + min) ;
     return number;
 }
 
-
+/**
 
 //function to read  in and parse the config.txt file
 //used geeksforgeeks point as reference
-//https://www.geeksforgeeks.org/tokenizing-a-string-cpp/
+//https://www.0.org/tokenizing-a-string-cpp/
 //https://www.geeksforgeeks.org/how-to-split-a-string-in-cc-python-and-java/
 void config(){
 
-    int cfig[100];
+    int cfig[15];
     int i = 0;
-    char buff[100];
+    char buff[15];
     char fName[] ="config.txt";
 
     //open file
@@ -122,28 +130,70 @@ void config(){
     file >> buff;
 
     //while file
-     while(file.eof()){
-         char* token = strtok(buff, ": ");
+    while(file.good()){
+        char* token = strtok(buff, ": ");
 
-         cfig[i] = atof(token);
+        cfig[i] = atof(token);
 
-         file >> buff;
-         i++;
-     }//end of while
+        file >> buff;
+        i++;
+    }//end of while
 
 file.close();
 }//end of config()
 
-void jobStart(){
+ *//
 
-}
+//probability calculator 1-100 all else is false
+bool probCalc(int probability ){
+    if(probability  < 0 || probability  >100){
+        cout<<"Out of range"<<endl;
+        return 1;
+    }//end if
+    else{
+       int temp;
+       temp = randomNumber(0,100);
+       if(temp <= probability ){
+           return true;
+       }//end of if
+       else{
+           return false;
+       }
+    }//end of else
+
+}//end of probCalc()
+
+//boolean for component variables
+bool CPUbusy;
+
+//using included FIFO queue
+//used cplusplus point as reference
+//https://www.cplusplus.com/reference/queue/queue/queue/
+std::priority_queue<node>jobQueue;
+std::queue<node>CPUqueue;
 
 
-void jobEnd(){
+void startJob(int min, int max){
+    node tempN = jobQueue.top();
+    string tempS = jobQueue.top().jobID;
+    jobQueue.pop();
 
-}
+    //if CPU is not busy will push job there
+    if(CPUbusy == false && CPUqueue.empty() ){
+        int rand = randomNumber(min, max);
+        currentT = (currentT + rand);
+        jobQueue.push(tempN);
+    }//end of if
+    else if(CPUbusy == true && !CPUqueue.empty() ){
+        CPUqueue.push();
+    }//end of else
 
-void CPUstart(){
+
+}//end of job start
+
+
+void CPUstart(int min, int max){
+
 
 }
 
@@ -180,16 +230,18 @@ void networkEnd(){
 
 int main(){
 
+
+
+
+
+/**
     priorityQueue pq;
 
     pq.push("job1",1,0);
     pq.push("jobN",5,500);
     pq.printQ();
 
-
-
-
     return 0;
-
+**/
 
 }//end of main
