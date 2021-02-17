@@ -4,12 +4,17 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <fstream>
+#include <string.h>
+#include <assert.h>
+
 using namespace std;
 
 //Priority Queue
 //used tutorials point as reference
 //https://www.tutorialspoint.com/cplusplus-program-to-implement-priority-queue
 
+//structure to hold the events
 struct node{
     int time;//
     int type;
@@ -17,6 +22,8 @@ struct node{
     struct node *tail;
 };
 
+
+//priorityQueue**********************************************************************************
 class priorityQueue{
     //Private access method for head pointer
     private:
@@ -48,7 +55,7 @@ class priorityQueue{
             temp2 = head;
             while(temp2 -> tail != NULL && temp2 ->tail->time <= tTime ) {
                 temp2 = temp2->tail;
-            }
+            }//end of while
             temp -> tail = temp2 -> tail;
             temp2 -> tail = temp;
 
@@ -89,10 +96,40 @@ class priorityQueue{
         }//end of printQ
 
 };// end of priorityQueue CLASS
+//End of priorityQueue ************************************************
 
 
+//config********************************************************
+//function to read  in and parse the config.txt file
+//used geeksforgeeks point as reference
+//https://www.geeksforgeeks.org/tokenizing-a-string-cpp/
+//https://www.geeksforgeeks.org/how-to-split-a-string-in-cc-python-and-java/
+void config(){
+
+    int cfig[100];
+    int i = 0;
+    char buff[100];
+    char fName[] ="config.txt";
+
+    //open file
+    ifstream file;
+    file.open(fName);
+
+    file >> buff;
+
+    //while file
+     while(file.eof()){
+         char* token = strtok(buff, ": ");
+
+         cfig[i] = atof(token);
+
+         file >> buff;
+         i++;
+     }//end of while
 
 
+}//end of config()
+//END config********************************************************
 
 
 int main(){
@@ -105,7 +142,8 @@ int main(){
 
 
 
-            return 0;
+
+    return 0;
 
 
 }//end of main
