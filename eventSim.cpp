@@ -23,7 +23,6 @@ struct node{
 };
 
 
-//priorityQueue**********************************************************************************
 class priorityQueue{
     //Private access method for head pointer
     private:
@@ -96,10 +95,15 @@ class priorityQueue{
         }//end of printQ
 
 };// end of priorityQueue CLASS
-//End of priorityQueue ************************************************
+
+int randomNumber(int x, int y){
+    int number;
+    number = rand() % (x + y + 1) + x*y ;
+    return number;
+}
 
 
-//config********************************************************
+
 //function to read  in and parse the config.txt file
 //used geeksforgeeks point as reference
 //https://www.geeksforgeeks.org/tokenizing-a-string-cpp/
@@ -127,10 +131,52 @@ void config(){
          i++;
      }//end of while
 
-
+file.close();
 }//end of config()
-//END config********************************************************
 
+void jobStart(){
+
+}
+
+
+void jobEnd(){
+
+}
+
+void CPUstart(){
+
+}
+
+void CPUend(){
+
+}
+
+void disk1Start(){
+
+}
+
+void disk1End(){
+
+}
+
+
+void disk2Start(){
+
+}
+
+void disk2End(){
+
+}
+
+
+
+void networkStart(){
+
+}
+
+void networkEnd(){
+
+}
 
 int main(){
 
