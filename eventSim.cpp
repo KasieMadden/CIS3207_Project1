@@ -96,9 +96,9 @@ class priorityQueue{
 
 };// end of priorityQueue CLASS
 
-int randomNumber(int x, int y){
+int randomNumber(int a, int b){
     int number;
-    number = rand() % (x + y + 1) + x*y ;
+    number = rand() % (a + b + 1) + a*b ;
     return number;
 }
 
