@@ -9,12 +9,17 @@
 
 //#include <string.h>
 //#include <assert.h>
-
+using namespace std;
 
 //Declaring global variables
+//boolean for component variables
 int currentT;
+int count = 0;
+bool CPUbusy = false;
+bool disk1Busy= false;
+bool disk2Busy= false;
+bool networkBusy= false;
 
-using namespace std;
 
 //Priority Queue
 //used tutorials point as reference
@@ -22,13 +27,24 @@ using namespace std;
 
 //structure to hold the events
 struct node{
-    int time;//
+    int time;
     int type;
     string jobID;
     struct node *tail;
 };
 
 
+//using included FIFO queue
+//used cplusplus point as reference
+//https://www.cplusplus.com/reference/queue/queue/queue/
+std::priority_queue<node>jobQueue;
+std::queue<node>CPUqueue;
+std::queue<node>disk1Queue;
+std::queue<node>disk2Queue;
+std::queue<node>networkQueue;
+
+
+/**priorityQueue
 class priorityQueue{
     //Private access method for head pointer
     private:
@@ -100,7 +116,7 @@ class priorityQueue{
 
         }//end of printQ
 
-};// end of priorityQueue CLASS
+};// end of priorityQueue CLASS**/
 
 
 //random number generator
@@ -109,12 +125,12 @@ int randomNumber(int min, int max){
     number = (rand() % (min + max + 1) + min) ;
     return number;
 }
-
+//void config()
 /**
 
 //function to read  in and parse the config.txt file
 //used geeksforgeeks point as reference
-//https://www.0.org/tokenizing-a-string-cpp/
+//https://www.geeksforgeeks.org/tokenizing-a-string-cpp/
 //https://www.geeksforgeeks.org/how-to-split-a-string-in-cc-python-and-java/
 void config(){
 
@@ -141,12 +157,15 @@ void config(){
 
 file.close();
 }//end of config()
+**/
 
- *//
+
 
 //probability calculator 1-100 all else is false
-bool probCalc(int probability ){
-    if(probability  < 0 || probability  >100){
+bool probabilityCalc(int probability ){
+
+
+    if(probability  < 0 || probability  > 100){
         cout<<"Out of range"<<endl;
         return 1;
     }//end if
@@ -163,85 +182,174 @@ bool probCalc(int probability ){
 
 }//end of probCalc()
 
-//boolean for component variables
-bool CPUbusy;
-
-//using included FIFO queue
-//used cplusplus point as reference
-//https://www.cplusplus.com/reference/queue/queue/queue/
-std::priority_queue<node>jobQueue;
-std::queue<node>CPUqueue;
 
 
-void startJob(int min, int max){
+//creating a new job
+//if cpu is not busy will job to cpu
+// if cup is busy will push to FIFO
+void startJob(int ARRIVE_MIN, int ARRIVE_MAX){
     node tempN = jobQueue.top();
     string tempS = jobQueue.top().jobID;
     jobQueue.pop();
 
     //if CPU is not busy will push job there
-    if(CPUbusy == false && CPUqueue.empty() ){
-        int rand = randomNumber(min, max);
-        currentT = (currentT + rand);
+    if(CPUbusy != true && CPUqueue.empty() ){
+        int timeR = randomNumber(ARRIVE_MIN, ARRIVE_MAX);
+        currentT = (currentT + timeR);
         jobQueue.push(tempN);
     }//end of if
     else if(CPUbusy == true && !CPUqueue.empty() ){
-        CPUqueue.push();
+
+        CPUqueue.push(tempN);
+
     }//end of else
 
-
+    jobQueue.push(tempN);
+    return;
 }//end of job start
 
 
-void CPUstart(int min, int max){
+//When CPU starts the event
+int startCPU(int CPU_MIN, int CPU_MAX){
+   node tempN = jobQueue.top();
+   jobQueue.pop();
+
+    CPUbusy = true;
+    int timeR = randomNumber(CPU_MIN, CPU_MAX);
+    currentT = (currentT + timeR);
+    jobQueue.push(tempN);
+    return currentT;
+
+}//end of startCPU
 
 
-}
 
-void CPUend(){
 
-}
+int disk1Start(int DISK1_MIN, int DISK1_MAX) {
+    node tempN = jobQueue.top();
+    jobQueue.pop();
 
-void disk1Start(){
+    disk1Busy = true;
+    int timeR = randomNumber(DISK1_MIN, DISK1_MAX);
+    int  currentT = (currentT + timeR);
+    jobQueue.push(tempN);
+    return currentT;
 
-}
+}//end of disk1Start
 
 void disk1End(){
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+    disk1Busy = false;
+
+    if(disk1Busy == true || !CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of if
+    else if(disk1Busy == false && CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of elseif
+
+    if(disk1Queue.empty()== false){
+        node tempJob  =networkQueue.front();
+        disk1Queue.pop();
+        disk1Queue.push(tempJob);
+    }//end of if
+    return;
 
 }
 
 
-void disk2Start(){
+void disk2Start(int DISK2_MIN, int DISK2_MAX){
+    node tempN = jobQueue.top();
+    jobQueue.pop();
 
-}
+    disk2Busy = true;
+    int timeR = randomNumber(DISK2_MIN, DISK2_MAX);
+    int  currentT = (currentT + timeR);
+    jobQueue.push(tempN);
+    return;
+
+
+
+}//end of disk2Start
 
 void disk2End(){
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+    disk2Busy = false;
 
-}
+    if(disk2Busy == true || !CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of if
+    else if(disk2Busy == false && CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of elseif
+
+    if(disk2Queue.empty()== false){
+        node tempJob  =networkQueue.front();
+        disk2Queue.pop();
+        disk2Queue.push(tempJob);
+    }//end of if
+    return;
 
 
 
-void networkStart(){
+}//end of disk2end
+
+
+
+int networkStart(int NETWORK_MIN, int NETWORK_MAX){
+
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+
+    networkBusy = true;
+    int timeR = randomNumber(NETWORK_MIN, NETWORK_MAX);
+    int  currentT = (currentT + timeR);
+    jobQueue.push(tempN);
+    return currentT;
+
 
 }
 
 void networkEnd(){
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+    networkBusy = false;
+
+    if(networkBusy == true || !CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of if
+    else if(networkBusy == false && CPUqueue.empty()){
+        CPUqueue.push(tempN);
+    }//end of elseif
+
+    if(networkQueue.empty()== false){
+        node tempJob  =networkQueue.front();
+        networkQueue.pop();
+        networkQueue.push(tempJob);
+    }//end of if
+    return;
+
+}//end of networkEnd
+
+
+
+
+void endCPU(int QUIT_PROB, int NETWORK_PROB){
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+    CPUbusy = false;
+
+
 
 }
+
 
 int main(){
 
 
 
 
-
-/**
-    priorityQueue pq;
-
-    pq.push("job1",1,0);
-    pq.push("jobN",5,500);
-    pq.printQ();
-
-    return 0;
-**/
 
 }//end of main
