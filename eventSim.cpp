@@ -1,20 +1,20 @@
 #include "eventSim.h"
-
 #include <iostream>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
+#include <string>
 #include <queue>
-
-//#include <string.h>
+#include <string.h>
 //#include <assert.h>
 using namespace std;
 
 //Declaring global variables
 //boolean for component variables
 int currentT;
-int count = 0;
+//int count = 0;
 bool CPUbusy = false;
 bool disk1Busy= false;
 bool disk2Busy= false;
@@ -46,54 +46,43 @@ std::queue<node>disk2Queue;
 std::queue<node>networkQueue;
 
 
+
 //random number generator
 int randomNumber(int min, int max){
     int number;
-    number = (rand() % (min + max + 1) + min) ;
+    number = ( (min + max + 1) + min) ;
     return number;
-}
-//void config()
-/**
+}//end of randomNum()
 
-//function to read  in and parse the config.txt file
-//used geeksforgeeks point as reference
-//https://www.geeksforgeeks.org/tokenizing-a-string-cpp/
-//https://www.geeksforgeeks.org/how-to-split-a-string-in-cc-python-and-java/
-void config(){
 
-    int cfig[15];
-    int i = 0;
-    char buff[15];
-    char fName[] ="config.txt";
+//to  parse the config.txt file returns a string.
+//http://www.cplusplus.com/articles/2wA0RXSz/
+const vector<string> explode(const string& s, const char& c);
 
-    //open file
-    ifstream file;
-    file.open(fName);
+string parseString(){
+    string str;
+    vector<string> v{explode(str, ' ')};
+    for(auto n:v) cout << n << endl;
 
-    file >> buff;
+    return 0;
 
-    //while file
-    while(file.good()){
-        char* token = strtok(buff, ": ");
+}//end of parseString()
 
-        cfig[i] = atof(token);
 
-        file >> buff;
-        i++;
-    }//end of while
-
-file.close();
-}//end of config()
-**/
-
+//convert string to an int
+//http://www.cplusplus.com/reference/sstream/stringstream/stringstream/
+string srtInt(int i){
+    std::stringstream sStream;
+    string temp;
+    sStream<<i<<temp;
+    return temp;
+}//end of srtInt()
 
 
 //probability calculator 1-100 all else is false
 bool probabilityCalc(int probability ){
 
-
     if(probability  < 0 || probability  > 100){
-        cout<<"Out of range"<<endl;
         return 1;
     }//end if
     else{
@@ -151,7 +140,6 @@ int startCPU(int CPU_MIN, int CPU_MAX){
 
 
 
-
 int disk1Start(int DISK1_MIN, int DISK1_MAX) {
     node tempN = jobQueue.top();
     jobQueue.pop();
@@ -183,7 +171,7 @@ void disk1End(){
     }//end of if
     return;
 
-}
+}//end of disk1end
 
 
 void disk2Start(int DISK2_MIN, int DISK2_MAX){
@@ -195,7 +183,6 @@ void disk2Start(int DISK2_MIN, int DISK2_MAX){
     int  currentT = (currentT + timeR);
     jobQueue.push(tempN);
     return;
-
 
 
 }//end of disk2Start
@@ -220,9 +207,7 @@ void disk2End(){
     return;
 
 
-
 }//end of disk2end
-
 
 
 int networkStart(int NETWORK_MIN, int NETWORK_MAX){
@@ -270,10 +255,13 @@ void endCPU(int QUIT_PROB, int NETWORK_PROB){
 
 
 
-}
+
+
+}//end of CPU
 
 
 int main(){
+
 
 
 
