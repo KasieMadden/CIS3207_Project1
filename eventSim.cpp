@@ -134,20 +134,21 @@ void disk1End(){
     jobQueue.pop();
     disk1Busy = false;
 
-    if(disk1Busy == true || !CPUqueue.empty()){
-        CPUqueue.push(tempN);
+    if(CPUbusy && CPUqueue.size() ==0){
+        node jobA = {tempN.time, sCPU, tempN.jobID};
+        jobQueue.push(jobA);
     }//end of if
-    else if(disk1Busy == false && CPUqueue.empty()){
+    else if(CPUbusy == true ||CPUqueue.size() !=0){
         CPUqueue.push(tempN);
-    }//end of elseif
+    }//end of else if
 
-    if(disk1Queue.empty() == false){
-        node tempJob = networkQueue.front();
+    if (disk1Queue.size() != 0){
+        node job = disk2Queue.front();
         disk1Queue.pop();
-        disk1Queue.push(tempJob);
+        node jobD1 = {job.time, sDisk1, job.jobID};
+        jobQueue.push(jobD1);
+
     }//end of if
-
-
 }//end of disk1end
 
 
@@ -168,21 +169,20 @@ void disk2End(){
     jobQueue.pop();
     disk2Busy = false;
 
-    if(disk2Busy == true || !CPUqueue.empty()){
-        CPUqueue.push(tempN);
+    if(CPUbusy && CPUqueue.size() ==0){
+        node jobA = {tempN.time, sCPU, tempN.jobID};
+        jobQueue.push(jobA);
     }//end of if
-    else if(disk2Busy == false && CPUqueue.empty()){
+    else if(CPUbusy == true ||CPUqueue.size() !=0){
         CPUqueue.push(tempN);
-    }//end of elseif
+    }//end of else if
 
-    if(disk2Queue.empty()== false){
-        node tempJob  =networkQueue.front();
+    if (disk1Queue.size() != 0) {
+        node job = disk2Queue.front();
         disk2Queue.pop();
-        disk2Queue.push(tempJob);
-    }//end of if
-    return;
-
-
+        node jobD2 = {job.time, sDisk2, job.jobID};
+        jobQueue.push(jobD2);
+    }
 }//end of disk2end
 
 
@@ -204,22 +204,21 @@ void networkEnd(){
     jobQueue.pop();
     networkBusy = false;
 
-    if(networkBusy == true || !CPUqueue.empty()){
-        CPUqueue.push(tempN);
+    if(CPUbusy && CPUqueue.size() ==0){
+        node jobA = {tempN.time, sCPU, tempN.jobID};
+        jobQueue.push(jobA);
     }//end of if
-    else if(networkBusy == false && CPUqueue.empty()){
+    else if(CPUbusy == true ||CPUqueue.size() !=0){
         CPUqueue.push(tempN);
-    }//end of elseif
+    }//end of else if
 
-    if(networkQueue.empty()== false){
-        node tempJob  =networkQueue.front();
+    if (networkQueue.size() != 0) {
+        node job = networkQueue.front();
         networkQueue.pop();
-        networkQueue.push(tempJob);
+        node jobN = {job.time, sDisk2, job.jobID};
+        jobQueue.push(jobN);
     }//end of if
-    return;
-
 }//end of networkEnd
-
 
 
 
@@ -228,32 +227,45 @@ void endCPU(int QUIT_PROB, int NETWORK_PROB){
     jobQueue.pop();
     CPUbusy = false;
 
-    if (disk1Busy == false && disk1Queue.empty()){
-        jobQueue.push(tempN);
-    }//end of if disk1Busy
-    else if(disk2Busy == false && disk2Queue.empty()) {
-        jobQueue.push(tempN);
-    }//end of if disk2Busy
-    else if (probabilityCalc(NETWORK_PROB)) {
-        if (networkBusy == false && CPUqueue.empty()) {
-            jobQueue.push(tempN);
-        }//end of if
-        else {
-            jobQueue.push(tempN);
-        }//end of else
-    }//end of if NETWORK_PROB
-    else if(probabilityCalc(QUIT_PROB)) {
-        jobQueue.push(tempN);
-   }//end  of else if QUIT_PROB
-    return;
 
+    if(disk1Busy && disk1Queue.size() ==0){
+        node job ={tempN.jobID, sDisk1, tempN.time};
+        jobQueue.push(job);
+    }//end of ifd1
 
+    else if(disk2Busy && disk2Queue.size() ==0){
+        node job ={ tempN.jobID, sDisk2, tempN.time};
+        jobQueue.push(job);
+    }//end of if d2
+    else if(disk1Queue.size() < disk2Queue.size()){
+        disk2Queue.push(tempN);
+    }// end of if()
 
+    else if(disk1Queue.size() > disk2Queue.size()){
+        disk2Queue.push(tempN);
+    }// end of if()d1q
+
+    else if(probabilityCalc(NETWORK_PROB)) {
+        if (networkBusy && networkQueue.size() == 0) {
+            node job = {tempN.jobID, sNetwork, tempN.time};
+            jobQueue.push(job);
+        }//end of if net
+    }//end of netprob
+
+    else if(probabilityCalc(QUIT_PROB)){
+        node job ={tempN.jobID, eJob, tempN.time};
+        jobQueue.push(job);
+    }//end of qiut prob
+
+    if (CPUqueue.size() != 0) {
+        node job = CPUqueue.front();
+        CPUqueue.pop();
+        node jobC = {job.time, sDisk2, job.jobID};
+        jobQueue.push(jobC);
+    }//end of if cpuque
 }//end of CPU
 
 
 int main(){
-
-
 
 }//end of main
