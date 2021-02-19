@@ -8,29 +8,38 @@
 #include <string>
 #include <queue>
 #include <string.h>
-//#include <assert.h>
+
+
 using namespace std;
 
 //Declaring global variables
+
+//https://www.geeksforgeeks.org/enumerated-types-or-enums-in-c/
+enum job{ sJob,
+          eJob,
+          sCPU,
+          eCPU,
+          sDisk1,
+          eDisk1,
+          sDisk2,
+          eDisk2,
+          sNetwork,
+          eNetwork};
+
+
 //boolean for component variables
-int currentT;
-//int count = 0;
 bool CPUbusy = false;
 bool disk1Busy= false;
 bool disk2Busy= false;
 bool networkBusy= false;
 
 
-//Priority Queue
-//used tutorials point as reference
-//https://www.tutorialspoint.com/cplusplus-program-to-implement-priority-queue
 
 //structure to hold the events
 struct node{
     int time;
     int type;
-    string jobID;
-    struct node *tail;
+    int jobID;
 };
 
 //using included priority queue queue
@@ -50,42 +59,12 @@ std::queue<node>networkQueue;
 //random number generator
 int randomNumber(int min, int max){
     int number;
-    number = ( (min + max + 1) + min) ;
+    number = rand()% min+max;
     return number;
 }//end of randomNum()
 
-
-//to  parse the config.txt file returns a string.
-//http://www.cplusplus.com/articles/2wA0RXSz/
-const vector<string> explode(const string& s, const char& c);
-
-string parseString(){
-    string str;
-    vector<string> v{explode(str, ' ')};
-    for(auto n:v) cout << n << endl;
-
-    return 0;
-
-}//end of parseString()
-
-
-//convert string to an int
-//http://www.cplusplus.com/reference/sstream/stringstream/stringstream/
-string srtInt(int i){
-    std::stringstream sStream;
-    string temp;
-    sStream<<i<<temp;
-    return temp;
-}//end of srtInt()
-
-
 //probability calculator 1-100 all else is false
 bool probabilityCalc(int probability ){
-
-    if(probability  < 0 || probability  > 100){
-        return 1;
-    }//end if
-    else{
        int temp;
        temp = randomNumber(0,100);
        if(temp <= probability ){
@@ -94,62 +73,60 @@ bool probabilityCalc(int probability ){
        else{
            return false;
        }
-    }//end of else
+  //  }//end of else
 
 }//end of probCalc()
-
 
 
 //creating a new job
 //if cpu is not busy will job to cpu
 // if cup is busy will push to FIFO
 void startJob(int ARRIVE_MIN, int ARRIVE_MAX){
+    int timeR = randomNumber(ARRIVE_MIN, ARRIVE_MAX);
+
+
     node tempN = jobQueue.top();
-    string tempS = jobQueue.top().jobID;
+    int tempI = jobQueue.top().jobID;
     jobQueue.pop();
 
-    //if CPU is not busy will push job there
-    if(CPUbusy != true && CPUqueue.empty() ){
-        int timeR = randomNumber(ARRIVE_MIN, ARRIVE_MAX);
-        currentT = (currentT + timeR);
-        jobQueue.push(tempN);
+ //if CPU is not busy will push job there
+    if(CPUbusy == false && CPUqueue.empty() ){
+
+        node JobN={(timeR+tempN.time),sCPU, tempI};
+        jobQueue.push(JobN);
     }//end of if
     else if(CPUbusy == true && !CPUqueue.empty() ){
 
         CPUqueue.push(tempN);
-
     }//end of else
 
-    jobQueue.push(tempN);
-    return;
-}//end of job start
+    node jobA = {(timeR + tempN.time), sJob, ++tempI};
+    jobQueue.push(jobA);
+}//end of job tart
 
 
 //When CPU starts the event
 int startCPU(int CPU_MIN, int CPU_MAX){
-   node tempN = jobQueue.top();
-   jobQueue.pop();
-
-    CPUbusy = true;
     int timeR = randomNumber(CPU_MIN, CPU_MAX);
-    currentT = (currentT + timeR);
-    jobQueue.push(tempN);
-    return currentT;
+    node tempN = jobQueue.top();
+    jobQueue.pop();
+    CPUbusy = true;
+
+    node jobA = {(timeR + tempN.time), eCPU, tempN.jobID};
+    jobQueue.push(jobA);
+    return (timeR + tempN.time);
 
 }//end of startCPU
 
-
-
 int disk1Start(int DISK1_MIN, int DISK1_MAX) {
+    int timeR = randomNumber(DISK1_MIN, DISK1_MAX);
     node tempN = jobQueue.top();
     jobQueue.pop();
-
     disk1Busy = true;
-    int timeR = randomNumber(DISK1_MIN, DISK1_MAX);
-    int  currentT = (currentT + timeR);
-    jobQueue.push(tempN);
-    return currentT;
 
+    node jobA = {(timeR + tempN.time), eDisk1, tempN.jobID};
+    jobQueue.push(jobA);
+    return (timeR + tempN.time);
 }//end of disk1Start
 
 void disk1End(){
@@ -164,26 +141,25 @@ void disk1End(){
         CPUqueue.push(tempN);
     }//end of elseif
 
-    if(disk1Queue.empty()== false){
-        node tempJob  =networkQueue.front();
+    if(disk1Queue.empty() == false){
+        node tempJob = networkQueue.front();
         disk1Queue.pop();
         disk1Queue.push(tempJob);
     }//end of if
-    return;
+
 
 }//end of disk1end
 
 
-void disk2Start(int DISK2_MIN, int DISK2_MAX){
+int disk2Start(int DISK2_MIN, int DISK2_MAX){
+    int timeR = randomNumber(DISK2_MIN, DISK2_MAX);
     node tempN = jobQueue.top();
     jobQueue.pop();
-
     disk2Busy = true;
-    int timeR = randomNumber(DISK2_MIN, DISK2_MAX);
-    int  currentT = (currentT + timeR);
-    jobQueue.push(tempN);
-    return;
 
+    node jobA = {(timeR + tempN.time), eDisk2, tempN.jobID};
+    jobQueue.push(jobA);
+    return (timeR + tempN.time);
 
 }//end of disk2Start
 
@@ -211,18 +187,17 @@ void disk2End(){
 
 
 int networkStart(int NETWORK_MIN, int NETWORK_MAX){
-
+    int timeR = randomNumber(NETWORK_MIN, NETWORK_MAX);
     node tempN = jobQueue.top();
     jobQueue.pop();
+    disk2Busy = true;
 
-    networkBusy = true;
-    int timeR = randomNumber(NETWORK_MIN, NETWORK_MAX);
-    int  currentT = (currentT + timeR);
-    jobQueue.push(tempN);
-    return currentT;
+    node jobA = {(timeR + tempN.time), eNetwork, tempN.jobID};
+    jobQueue.push(jobA);
+    return (timeR + tempN.time);
 
 
-}
+}//end of networkstart()
 
 void networkEnd(){
     node tempN = jobQueue.top();
@@ -253,7 +228,24 @@ void endCPU(int QUIT_PROB, int NETWORK_PROB){
     jobQueue.pop();
     CPUbusy = false;
 
-
+    if (disk1Busy == false && disk1Queue.empty()){
+        jobQueue.push(tempN);
+    }//end of if disk1Busy
+    else if(disk2Busy == false && disk2Queue.empty()) {
+        jobQueue.push(tempN);
+    }//end of if disk2Busy
+    else if (probabilityCalc(NETWORK_PROB)) {
+        if (networkBusy == false && CPUqueue.empty()) {
+            jobQueue.push(tempN);
+        }//end of if
+        else {
+            jobQueue.push(tempN);
+        }//end of else
+    }//end of if NETWORK_PROB
+    else if(probabilityCalc(QUIT_PROB)) {
+        jobQueue.push(tempN);
+   }//end  of else if QUIT_PROB
+    return;
 
 
 
@@ -261,9 +253,6 @@ void endCPU(int QUIT_PROB, int NETWORK_PROB){
 
 
 int main(){
-
-
-
 
 
 
