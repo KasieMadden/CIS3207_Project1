@@ -1,0 +1,8 @@
+
+Data used:
+The data I used to test my program were only the original values used within the CONFIG.txt file.
+
+Lessons learned:
+I learned many lessons during this project. Primarily I need to break down the code into small
+sections and not to try to tackle too many items at once. Also to stay focused on the big picture
+of the process and ensure nothing gets left behind.
