@@ -1,6 +1,6 @@
 #ifndef CIS3207_PROJECT1_EVENTSIM_H
 #define CIS3207_PROJECT1_EVENTSIM_H
 
-void hello();
+int main();
 
 #endif //CIS3207_PROJECT1_EVENTSIM_H
